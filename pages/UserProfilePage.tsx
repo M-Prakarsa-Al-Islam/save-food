@@ -94,66 +94,68 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ onBack, onNavigateToW
     };
 
     return (
-        <>
-            <header className="bg-primary text-white shadow-sm p-4 flex items-center sticky top-0 z-40">
+        <div className="h-full flex flex-col">
+            <header className="bg-primary text-white shadow-sm p-4 flex items-center sticky top-0 z-40 flex-shrink-0">
                 <button onClick={onBack} className="p-2 -ml-2 mr-2 rounded-full hover:bg-primary-dark transition-colors">
                     <ChevronLeft />
                 </button>
                 <h1 className="text-xl font-bold">{t('myProfile')}</h1>
             </header>
-            <div className="p-4 space-y-6">
-                <div className="p-6 bg-white rounded-xl shadow-sm flex items-center gap-4 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    {currentUser.avatarUrl ? (
-                        <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-16 h-16 rounded-full object-cover" />
-                    ) : (
-                        <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
-                            <User size={32} className="text-primary"/>
-                        </div>
-                    )}
-                    <div className="flex-grow">
-                        <h2 className="text-2xl font-bold text-dark dark:text-light">{currentUser.name}</h2>
-                        <p className="text-gray-600 dark:text-gray-300">{t('foodSaver')}</p>
-                    </div>
-                     <button onClick={() => setIsEditing(true)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 text-primary">
-                        <Edit size={20} />
-                    </button>
-                </div>
-
-                <div className="p-6 bg-white rounded-xl shadow-sm space-y-6 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    <ProfileItem icon={<Mail size={24} />} label={t('email')} value={currentUser.email} />
-                    <ProfileItem icon={<Phone size={24} />} label={t('phoneNumber')} value={(currentUser as any).phone || '-'} />
-                </div>
-
-                <div className="p-4 bg-white rounded-xl shadow-sm dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    <button onClick={onNavigateToWishlist} className="w-full flex justify-between items-center text-left hover:bg-gray-50 dark:hover:bg-slate-700/50 -m-4 p-4 rounded-xl transition-colors">
-                        <div className="flex items-center gap-4">
-                            <div className="text-primary"><Heart size={24} /></div>
-                            <div>
-                                <p className="font-semibold text-dark dark:text-light">{t('myWishlistTitle')}</p>
+            <div className="flex-grow flex flex-col overflow-hidden">
+                <div className="flex-grow p-4 space-y-6 overflow-y-auto">
+                    <div className="p-6 bg-white rounded-xl shadow-sm flex items-center gap-4 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                        {currentUser.avatarUrl ? (
+                            <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-16 h-16 rounded-full object-cover" />
+                        ) : (
+                            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
+                                <User size={32} className="text-primary"/>
                             </div>
+                        )}
+                        <div className="flex-grow">
+                            <h2 className="text-2xl font-bold text-dark dark:text-light">{currentUser.name}</h2>
+                            <p className="text-gray-600 dark:text-gray-300">{t('foodSaver')}</p>
                         </div>
-                        <ChevronRight className="text-gray-400" />
-                    </button>
+                         <button onClick={() => setIsEditing(true)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 text-primary">
+                            <Edit size={20} />
+                        </button>
+                    </div>
+
+                    <div className="p-6 bg-white rounded-xl shadow-sm space-y-6 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                        <ProfileItem icon={<Mail size={24} />} label={t('email')} value={currentUser.email} />
+                        <ProfileItem icon={<Phone size={24} />} label={t('phoneNumber')} value={(currentUser as any).phone || '-'} />
+                    </div>
+
+                    <div className="p-4 bg-white rounded-xl shadow-sm dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                        <button onClick={onNavigateToWishlist} className="w-full flex justify-between items-center text-left hover:bg-gray-50 dark:hover:bg-slate-700/50 -m-4 p-4 rounded-xl transition-colors">
+                            <div className="flex items-center gap-4">
+                                <div className="text-primary"><Heart size={24} /></div>
+                                <div>
+                                    <p className="font-semibold text-dark dark:text-light">{t('myWishlistTitle')}</p>
+                                </div>
+                            </div>
+                            <ChevronRight className="text-gray-400" />
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <button 
+                            onClick={() => setIsDeleting(true)}
+                            className="w-full flex items-center justify-center gap-2 bg-transparent text-red-500 font-bold py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border border-red-500">
+                            <Trash2 size={20}/>
+                            <span>{t('deleteProfile')}</span>
+                        </button>
+                        <button 
+                            onClick={logout}
+                            className="w-full flex items-center justify-center gap-2 bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20">
+                            <LogOut size={20}/>
+                            <span>{t('logout')}</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="p-4 space-y-4 flex-shrink-0">
                   <ThemeToggle />
                   <LanguageSwitcher />
-                </div>
-
-                <div className="space-y-4">
-                    <button 
-                        onClick={() => setIsDeleting(true)}
-                        className="w-full flex items-center justify-center gap-2 bg-transparent text-red-500 font-bold py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border border-red-500">
-                        <Trash2 size={20}/>
-                        <span>{t('deleteProfile')}</span>
-                    </button>
-                    <button 
-                        onClick={logout}
-                        className="w-full flex items-center justify-center gap-2 bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20">
-                        <LogOut size={20}/>
-                        <span>{t('logout')}</span>
-                    </button>
                 </div>
             </div>
             
@@ -212,7 +214,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ onBack, onNavigateToW
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

@@ -84,9 +84,9 @@ const PartnerHomePage: React.FC = () => {
   };
   
   return (
-    <div className="bg-light dark:bg-dark min-h-screen">
+    <div className="bg-light dark:bg-dark h-screen flex flex-col">
       <Header title={t('partnerDashboard')} variant="primary" onProfileClick={() => setView('profile')} />
-      <main>
+      <main className="flex-grow overflow-y-auto">
         {renderContent()}
       </main>
     </div>

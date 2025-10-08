@@ -71,14 +71,16 @@ const UserHomePage: React.FC = () => {
             return <UserDashboard onSelectFoodItem={setSelectedFoodItem} onProfileClick={handleProfileClick} />;
     }
   };
+  
+  const showBottomNav = !selectedFoodItem && !profileView;
 
   return (
-    <div className="bg-slate-100 dark:bg-slate-900 min-h-screen">
-      <main className="pb-20">
+    <div className="bg-slate-100 dark:bg-slate-900 h-screen flex flex-col">
+      <main className={`flex-grow overflow-y-auto ${showBottomNav ? "pb-20" : ""}`}>
         {renderContent()}
       </main>
       
-      {!selectedFoodItem && !profileView && <BottomNav activeTab={view} onTabChange={setView} />}
+      {showBottomNav && <BottomNav activeTab={view} onTabChange={setView} />}
 
       {activeReservation && selectedFoodItem && (
         <ReservationConfirmation 

@@ -39,12 +39,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
   return (
     <div className="min-h-screen bg-light dark:bg-dark flex flex-col items-center justify-center p-4 relative overflow-hidden">
       <BackgroundLeaves />
-      <div className="absolute top-4 right-4 z-20 space-y-4 w-60">
-        <ThemeToggle />
-        <LanguageSwitcher />
-      </div>
-
-      <div className="relative z-10 w-full flex flex-col items-center">
+      
+      <main className="relative z-10 w-full flex-grow flex flex-col items-center justify-center">
         <div className="text-center mb-6 bg-white/70 dark:bg-dark/70 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-lg border border-white/30 dark:border-gray-700">
             <Leaf className="mx-auto text-primary" size={64} />
             <h1 className="text-5xl font-bold text-dark dark:text-light mt-4">SaveFood</h1>
@@ -70,7 +66,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             />
           </div>
         </div>
-      </div>
+      </main>
+
+      <footer className="relative z-10 w-full max-w-md space-y-4 pt-6">
+        <ThemeToggle />
+        <LanguageSwitcher />
+      </footer>
     </div>
   );
 };
