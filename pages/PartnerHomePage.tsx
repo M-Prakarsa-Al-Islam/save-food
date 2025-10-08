@@ -11,8 +11,9 @@ import PostFoodForm from '../components/partner/PostFoodForm';
 import ManageReservations from '../components/partner/ManageReservations';
 import PartnerAnalytics from '../components/partner/PartnerAnalytics';
 import PartnerProfilePage from './PartnerProfilePage';
+import PartnerFoodList from '../components/partner/PartnerFoodList';
 
-type PartnerView = 'dashboard' | 'post' | 'reservations' | 'analytics' | 'profile';
+type PartnerView = 'dashboard' | 'post' | 'reservations' | 'analytics' | 'profile' | 'listings';
 
 const PartnerHomePage: React.FC = () => {
   const [view, setView] = useState<PartnerView>('dashboard');
@@ -74,6 +75,8 @@ const PartnerHomePage: React.FC = () => {
         return <PartnerAnalytics onBack={handleBackToDashboard} />;
       case 'profile':
         return <PartnerProfilePage onBack={handleBackToDashboard} />;
+      case 'listings':
+        return <PartnerFoodList onBack={handleBackToDashboard} />;
       case 'dashboard':
       default:
         return <PartnerDashboard onNavigate={setView} />;

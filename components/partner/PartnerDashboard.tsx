@@ -4,7 +4,7 @@ import { UtensilsCrossed, PlusCircle, BarChart3, QrCode } from 'lucide-react';
 import { LanguageContext } from '../../context/ThemeContext';
 
 interface PartnerDashboardProps {
-    onNavigate: (view: 'post' | 'reservations' | 'analytics') => void;
+    onNavigate: (view: 'post' | 'reservations' | 'analytics' | 'listings') => void;
 }
 
 const PartnerDashboard: React.FC<PartnerDashboardProps> = ({ onNavigate }) => {
@@ -12,12 +12,18 @@ const PartnerDashboard: React.FC<PartnerDashboardProps> = ({ onNavigate }) => {
   return (
     <div className="p-4 sm:p-6 space-y-6">
       <h2 className="text-2xl font-bold text-dark dark:text-light">{t('partnerDashboardTitle')}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <DashboardCard 
           icon={<PlusCircle size={32} />} 
           title={t('postNewFood')} 
           description={t('postNewFoodDesc')}
           onClick={() => onNavigate('post')}
+        />
+        <DashboardCard 
+          icon={<UtensilsCrossed size={32} />} 
+          title={t('myListings')} 
+          description={t('myListingsDesc')}
+          onClick={() => onNavigate('listings')}
         />
         <DashboardCard 
           icon={<QrCode size={32} />} 

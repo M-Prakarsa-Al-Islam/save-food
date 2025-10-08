@@ -1,9 +1,10 @@
 import React, { useState, useContext, useMemo } from 'react';
-import { ChevronLeft, Search, QrCode, Ticket, Info, CheckCircle } from 'lucide-react';
+import { ChevronLeft, Search, QrCode, Ticket, Info, CheckCircle, ScanLine } from 'lucide-react';
 import { DataContext } from '../../context/DataContext';
 import { AuthContext } from '../../context/AuthContext';
 import { LanguageContext } from '../../context/ThemeContext';
 import type { Reservation, FoodItem, User } from '../../types';
+import QrScanner from './QrScanner';
 
 interface ManageReservationsProps {
   onBack: () => void;
@@ -50,6 +51,7 @@ const ManageReservations: React.FC<ManageReservationsProps> = ({ onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [verificationStatus, setVerificationStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const partnerId = authContext?.currentUser?.id;
   
@@ -72,11 +74,11 @@ const ManageReservations: React.FC<ManageReservationsProps> = ({ onBack }) => {
     });
   }, [reservations, searchTerm, dataContext]);
 
-  const handleVerification = () => {
-    if (!verificationCode) return;
+  const verifyCode = (code: string) => {
+    if (!code) return;
     setVerificationStatus(null);
     try {
-        dataContext?.completeReservation(verificationCode);
+        dataContext?.completeReservation(code);
         setVerificationStatus({ type: 'success', message: t('alert.verificationSuccess') });
         setVerificationCode('');
     } catch (e: any) {
@@ -85,65 +87,97 @@ const ManageReservations: React.FC<ManageReservationsProps> = ({ onBack }) => {
     setTimeout(() => setVerificationStatus(null), 4000);
   };
 
+  const handleVerification = () => {
+    verifyCode(verificationCode);
+  };
+
+  const handleScanSuccess = (decodedText: string) => {
+    setIsScannerOpen(false);
+    if (decodedText.startsWith('SAVEFOOD_')) {
+        const code = decodedText.substring('SAVEFOOD_'.length);
+        setVerificationCode(code); // Set the code in the input for visibility
+        verifyCode(code); // And immediately verify
+    } else {
+        setVerificationStatus({ type: 'error', message: t('invalidQrCode') });
+        setTimeout(() => setVerificationStatus(null), 4000);
+    }
+  };
+
   return (
-    <div className="p-4 space-y-4">
-        <div className="flex items-center mb-4">
-            <button onClick={onBack} className="p-2 mr-2 text-dark dark:text-light">
-                <ChevronLeft />
-            </button>
-            <h2 className="text-xl font-bold text-dark dark:text-light">{t('manageReservations')}</h2>
-        </div>
+    <>
+      {isScannerOpen && (
+          <QrScanner 
+            onScanSuccess={handleScanSuccess}
+            onClose={() => setIsScannerOpen(false)}
+          />
+      )}
+      <div className="p-4 space-y-4">
+          <div className="flex items-center mb-4">
+              <button onClick={onBack} className="p-2 mr-2 text-dark dark:text-light">
+                  <ChevronLeft />
+              </button>
+              <h2 className="text-xl font-bold text-dark dark:text-light">{t('manageReservations')}</h2>
+          </div>
 
-        {/* Verification Section */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-            <h3 className="font-bold text-lg mb-2 flex items-center gap-2 text-dark dark:text-light"><QrCode size={20} className="text-primary"/> {t('verifyReservation')}</h3>
-            <div className="flex items-center gap-2">
-                <input
-                    type="text"
-                    placeholder={t('enterCode')}
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value.toUpperCase())}
-                    className="w-full px-4 py-2 border rounded-md dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                />
-                <button onClick={handleVerification} className="bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:bg-gray-400" disabled={!verificationCode}>
-                    {t('verify')}
-                </button>
-            </div>
-            {verificationStatus && (
-                <div className={`mt-3 text-sm p-2 rounded-md flex items-center gap-2 ${verificationStatus.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'}`}>
-                    <CheckCircle size={16} />
-                    {verificationStatus.message}
-                </div>
-            )}
-        </div>
+          {/* Verification Section */}
+          <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+              <h3 className="font-bold text-lg mb-2 flex items-center gap-2 text-dark dark:text-light"><QrCode size={20} className="text-primary"/> {t('verifyReservation')}</h3>
+              <div className="flex items-stretch gap-2">
+                  <input
+                      type="text"
+                      placeholder={t('enterCode')}
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value.toUpperCase())}
+                      className="flex-grow px-4 py-2 border rounded-md dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  />
+                  <button 
+                      onClick={() => setIsScannerOpen(true)} 
+                      className="p-3 bg-gray-200 text-dark dark:bg-slate-700 dark:text-light rounded-md hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors" 
+                      type="button" 
+                      aria-label={t('scanQrCode')}
+                  >
+                      <ScanLine size={20} />
+                  </button>
+                  <button onClick={handleVerification} className="bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors disabled:bg-gray-400" disabled={!verificationCode}>
+                      {t('verify')}
+                  </button>
+              </div>
+              {verificationStatus && (
+                  <div className={`mt-3 text-sm p-2 rounded-md flex items-center gap-2 ${verificationStatus.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'}`}>
+                      <CheckCircle size={16} />
+                      {verificationStatus.message}
+                  </div>
+              )}
+          </div>
 
-        {/* Active Reservations List */}
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-            <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-dark dark:text-light"><Ticket size={20} className="text-primary"/> {t('activeReservations')} ({reservations.length})</h3>
-             <div className="relative mb-4">
-                <input
-                    type="text"
-                    placeholder={t('searchReservations')}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border rounded-full dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                />
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-            </div>
+          {/* Active Reservations List */}
+          <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-dark dark:text-light"><Ticket size={20} className="text-primary"/> {t('activeReservations')} ({reservations.length})</h3>
+              <div className="relative mb-4">
+                  <input
+                      type="text"
+                      placeholder={t('searchReservations')}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border rounded-full dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+              </div>
 
-            {filteredReservations.length > 0 ? (
-                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                    {filteredReservations.map(res => <ReservationDetailCard key={res.id} reservation={res} />)}
-                </div>
-            ) : (
-                 <div className="text-center py-10 text-gray-500 dark:text-gray-400">
-                    <Info size={32} className="mx-auto mb-2"/>
-                    <p className="font-semibold">{t('noActiveReservationsFound')}</p>
-                    <p className="text-sm">{t(searchTerm ? 'tryDifferentSearch' : 'newReservationsAppearHere')}</p>
-                </div>
-            )}
-        </div>
-    </div>
+              {filteredReservations.length > 0 ? (
+                  <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                      {filteredReservations.map(res => <ReservationDetailCard key={res.id} reservation={res} />)}
+                  </div>
+              ) : (
+                  <div className="text-center py-10 text-gray-500 dark:text-gray-400">
+                      <Info size={32} className="mx-auto mb-2"/>
+                      <p className="font-semibold">{t('noActiveReservationsFound')}</p>
+                      <p className="text-sm">{t(searchTerm ? 'tryDifferentSearch' : 'newReservationsAppearHere')}</p>
+                  </div>
+              )}
+          </div>
+      </div>
+    </>
   );
 };
 

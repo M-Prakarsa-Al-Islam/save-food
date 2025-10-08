@@ -21,6 +21,7 @@ interface DataContextType {
   addFoodItem: (formData: any) => void;
   getReservationsForPartner: (partnerId: string) => Reservation[];
   getReservationsForUser: (userId: string) => Reservation[];
+  getFoodItemsForPartner: (partnerId: string) => FoodItem[];
   completeReservation: (code: string) => void;
   getPartnerAnalytics: (partnerId: string) => any;
   // Wishlist
@@ -125,6 +126,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
 
+  const getFoodItemsForPartner = (partnerId: string) => {
+    return foodItems
+      .filter(item => item.restaurantId === partnerId)
+      .sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime());
+  };
+
   const completeReservation = (code: string) => {
     const reservationIndex = reservations.findIndex(r => r.reservationCode.toUpperCase() === code.toUpperCase() && r.status === 'active');
     if (reservationIndex === -1) {
@@ -195,7 +202,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
   return (
-    <DataContext.Provider value={{ foodItems, reservations, getRestaurantById, getUserById, getFoodItemById, getPopularRestaurants, createReservation, addFoodItem, getReservationsForPartner, getReservationsForUser, completeReservation, getPartnerAnalytics, isWishlisted, addToWishlist, removeFromWishlist, getWishlistedItems }}>
+    <DataContext.Provider value={{ foodItems, reservations, getRestaurantById, getUserById, getFoodItemById, getPopularRestaurants, createReservation, addFoodItem, getReservationsForPartner, getReservationsForUser, completeReservation, getPartnerAnalytics, getFoodItemsForPartner, isWishlisted, addToWishlist, removeFromWishlist, getWishlistedItems }}>
       {children}
     </DataContext.Provider>
   );
